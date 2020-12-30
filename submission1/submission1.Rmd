@@ -13,21 +13,21 @@ output: html_notebook
 1.1 Treasury yield curve data was imported from treasury.gov:
 
 ```{r}
-yc <- read.csv(file = 'yieldcurve.csv')
+yc <- read.csv(file = 'data/yieldcurve.csv')
 yc
 ```
 
 1.2 GLD etf data was imported from yahoo finance:
 
 ```{r}
-gld <- data.frame(read.csv(file = 'GLD.csv'))
+gld <- data.frame(read.csv(file = 'data/GLD.csv'))
 gld
 ```
 
 1.2 GLD etf data was imported from yahoo finance:
 
 ```{r}
-ewa <- read.csv(file = 'EWA.csv')
+ewa <- read.csv(file = 'data/EWA.csv')
 ewa
 ```
 
