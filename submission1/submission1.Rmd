@@ -3,13 +3,14 @@ title: "Submission 1"
 output: html_notebook
 ---
 
+# 0 Introduction
 
 0.1 SPDR GLD was selected for a gold etf fund: https://etfdb.com/etf/GLD/#etf-ticker-profile
 
 0.2 iSharesMSCI australia etf was selected for an equity etf: https://www.ishares.com/us/products/239607/ishares-msci-australia-etf
 
 
-# Data Importing
+# 1 Data Importing
 1.1 Treasury yield curve data was imported from treasury.gov:
 
 ```{r}
@@ -31,7 +32,9 @@ ewa <- read.csv(file = 'data/EWA.csv')
 ewa
 ```
 
-# Data Processing
+
+
+# 2 Data Processing
 
 2.1 The daily returns are computed for the gold and equity ETFs:
 ```{r}
@@ -50,4 +53,19 @@ ewa
 ```
 
 
+# 3 Data Summaries
 
+
+# 4 Graphing
+
+
+# 5 Fitting the Yield Curve
+
+
+# 6 Modeling Prices
+
+
+# 7 Modeling Volatility
+
+
+# 8 Correlation
