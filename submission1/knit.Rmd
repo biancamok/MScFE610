@@ -1,18 +1,53 @@
 ---
-title: "R Notebook"
+title: "Submission 1"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+0.1 SPDR GLD was selected for a gold etf fund: https://etfdb.com/etf/GLD/#etf-ticker-profile
+
+0.2 iSharesMSCI australia etf was selected for an equity etf: https://www.ishares.com/us/products/239607/ishares-msci-australia-etf
+
+
+# Data Importing
+1.1 Treasury yield curve data was imported from treasury.gov:
 
 ```{r}
-plot(cars)
+yc <- read.csv(file = 'yieldcurve.csv')
+yc
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+1.2 GLD etf data was imported from yahoo finance:
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+```{r}
+gld <- data.frame(read.csv(file = 'GLD.csv'))
+gld
+```
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+1.2 GLD etf data was imported from yahoo finance:
+
+```{r}
+ewa <- read.csv(file = 'EWA.csv')
+ewa
+```
+
+# Data Processing
+
+2.1 The daily returns are computed for the gold and equity ETFs:
+```{r}
+
+gen_logret <- function(df){
+  df$logret = log(df$Adj.Close/c(0, head(df$Adj.Close, -1)))
+  df <- df[-1,]
+  return(df)
+}
+gld <- gen_logret(gld)
+gld
+
+ewa <- gen_logret(ewa)
+ewa
+
+```
+
+
+
