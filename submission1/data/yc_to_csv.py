@@ -18,11 +18,11 @@ for member in root.iter('{http://schemas.microsoft.com/ado/2007/08/dataservices/
   if ((start <= date) and (date <= end)):
   
     if first:
-      csvwriter.writerow(['date', '2 yr', '3 yr', '5 yr', '7 yr', '10 yr', '30 yr'])
+      csvwriter.writerow(['Date', 'y2', 'y3', 'y5', 'y7', 'y10', 'y30'])
       first = False
 
     csvwriter.writerow([
-            member.find("{http://schemas.microsoft.com/ado/2007/08/dataservices}NEW_DATE").text,
+            date,
             member.find("{http://schemas.microsoft.com/ado/2007/08/dataservices}BC_2YEAR").text,
             member.find("{http://schemas.microsoft.com/ado/2007/08/dataservices}BC_3YEAR").text,
             member.find("{http://schemas.microsoft.com/ado/2007/08/dataservices}BC_5YEAR").text,

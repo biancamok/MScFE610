@@ -5,6 +5,10 @@ output: html_notebook
 
 # 0 Introduction
 
+```{r}
+library(data.table)
+```
+
 0.1 SPDR GLD was selected for a gold etf fund: https://etfdb.com/etf/GLD/#etf-ticker-profile
 
 0.2 iSharesMSCI australia etf was selected for an equity etf: https://www.ishares.com/us/products/239607/ishares-msci-australia-etf
@@ -14,21 +18,24 @@ output: html_notebook
 1.1 Treasury yield curve data was imported from treasury.gov:
 
 ```{r}
-yc <- read.csv(file = 'data/yieldcurve.csv')
+yc <- data.table(read.csv(file = 'data/yieldcurve.csv'))
+yc[[1]] <- as.Date(yc[[1]])
 yc
 ```
 
 1.2 GLD etf data was imported from yahoo finance:
 
 ```{r}
-gld <- data.frame(read.csv(file = 'data/GLD.csv'))
+gld <- data.table(read.csv(file = 'data/GLD.csv'))
+gld[[1]] <- as.Date(gld[[1]])
 gld
 ```
 
 1.2 GLD etf data was imported from yahoo finance:
 
 ```{r}
-ewa <- read.csv(file = 'data/EWA.csv')
+ewa <- data.table(read.csv(file = 'data/EWA.csv'))
+ewa[[1]] <- as.Date(ewa[[1]])
 ewa
 ```
 
@@ -54,7 +61,45 @@ ewa
 
 
 # 3 Data Summaries
-
+```{r}
+nov1 = '2019-11-01'
+summaries <- data.table(
+  ticker   = c('yc2', 'yc3', 'yc5', 'yc7', 'yc10', 'yc30', 'gld', 'ewa'),
+  mean_oct = c( mean(yc[Date<nov1]$y2), 
+                mean(yc[Date<nov1]$y3), 
+                mean(yc[Date<nov1]$y5), 
+                mean(yc[Date<nov1]$y7), 
+                mean(yc[Date<nov1]$y10), 
+                mean(yc[Date<nov1]$y30), 
+                mean(gld[Date<nov1]$Adj.Close), 
+                mean(ewa[Date<nov1]$Adj.Close)),
+  sd_oct   = c( sd(yc[Date < nov1]$y2),
+                sd(yc[Date < nov1]$y3),
+                sd(yc[Date < nov1]$y5),
+                sd(yc[Date < nov1]$y7),
+                sd(yc[Date < nov1]$y10),
+                sd(yc[Date < nov1]$y30),
+                sd(gld[Date < nov1]$Adj.Close),
+                sd(ewa[Date<nov1]$Adj.Close)),
+  mean_nov = c( mean(yc[Date>=nov1]$y2),
+                mean(yc[Date>=nov1]$y3),
+                mean(yc[Date>=nov1]$y5),
+                mean(yc[Date>=nov1]$y7),
+                mean(yc[Date>=nov1]$y10),
+                mean(yc[Date>=nov1]$y30),
+                mean(gld[Date>=nov1]$Adj.Close),
+                mean(ewa[Date>=nov1]$Adj.Close)),
+  sd_nov   = c( sd(yc[Date>=nov1]$y2),
+                sd(yc[Date>=nov1]$y3),
+                sd(yc[Date>=nov1]$y5),
+                sd(yc[Date>=nov1]$y7),
+                sd(yc[Date>=nov1]$y10),
+                sd(yc[Date>=nov1]$y30),
+                sd(gld[Date>=nov1]$Adj.Close),
+                sd(ewa[Date>=nov1]$Adj.Close))
+) 
+summaries
+```
 
 # 4 Graphing
 
