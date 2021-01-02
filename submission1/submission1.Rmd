@@ -7,6 +7,8 @@ output: html_notebook
 
 ```{r}
 library(data.table)
+library(ggplot2)
+library(xts)
 ```
 
 0.1 SPDR GLD was selected for a gold etf fund: https://etfdb.com/etf/GLD/#etf-ticker-profile
@@ -18,25 +20,31 @@ library(data.table)
 1.1 Treasury yield curve data was imported from treasury.gov:
 
 ```{r}
-yc <- data.table(read.csv(file = 'data/yieldcurve.csv'))
-yc[[1]] <- as.Date(yc[[1]])
-yc
+csvToXTS <- function(filename){
+  yc <- data.table(read.csv(file = filename))
+  yc[[1]] <- as.Date(yc[[1]])
+  dates = yc[[1]]
+  yc <- subset(yc, select = -c(Date) )
+  yc <- xts(yc, order.by=dates)
+  return(yc)
+}
+
+yc <- csvToXTS('data/yieldcurve.csv')
+head(yc)
 ```
 
 1.2 GLD etf data was imported from yahoo finance:
 
 ```{r}
-gld <- data.table(read.csv(file = 'data/GLD.csv'))
-gld[[1]] <- as.Date(gld[[1]])
-gld
+gld <- csvToXTS('data/gld.csv')
+head(gld)
 ```
 
 1.2 GLD etf data was imported from yahoo finance:
 
 ```{r}
-ewa <- data.table(read.csv(file = 'data/EWA.csv'))
-ewa[[1]] <- as.Date(ewa[[1]])
-ewa
+ewa <- csvToXTS('data/EWA.csv')
+head(ewa)
 ```
 
 
@@ -52,51 +60,53 @@ gen_logret <- function(df){
   return(df)
 }
 gld <- gen_logret(gld)
-gld
+head(gld)
 
 ewa <- gen_logret(ewa)
-ewa
+head(ewa)
 
 ```
 
 
 # 3 Data Summaries
 ```{r}
-nov1 = '2019-11-01'
+#nov1 = '2019-11-01'
+oct = '/2019-10-31'
+nov = '2019-11-01/'
 summaries <- data.table(
   ticker   = c('yc2', 'yc3', 'yc5', 'yc7', 'yc10', 'yc30', 'gld', 'ewa'),
-  mean_oct = c( mean(yc[Date<nov1]$y2), 
-                mean(yc[Date<nov1]$y3), 
-                mean(yc[Date<nov1]$y5), 
-                mean(yc[Date<nov1]$y7), 
-                mean(yc[Date<nov1]$y10), 
-                mean(yc[Date<nov1]$y30), 
-                mean(gld[Date<nov1]$Adj.Close), 
-                mean(ewa[Date<nov1]$Adj.Close)),
-  sd_oct   = c( sd(yc[Date < nov1]$y2),
-                sd(yc[Date < nov1]$y3),
-                sd(yc[Date < nov1]$y5),
-                sd(yc[Date < nov1]$y7),
-                sd(yc[Date < nov1]$y10),
-                sd(yc[Date < nov1]$y30),
-                sd(gld[Date < nov1]$Adj.Close),
-                sd(ewa[Date<nov1]$Adj.Close)),
-  mean_nov = c( mean(yc[Date>=nov1]$y2),
-                mean(yc[Date>=nov1]$y3),
-                mean(yc[Date>=nov1]$y5),
-                mean(yc[Date>=nov1]$y7),
-                mean(yc[Date>=nov1]$y10),
-                mean(yc[Date>=nov1]$y30),
-                mean(gld[Date>=nov1]$Adj.Close),
-                mean(ewa[Date>=nov1]$Adj.Close)),
-  sd_nov   = c( sd(yc[Date>=nov1]$y2),
-                sd(yc[Date>=nov1]$y3),
-                sd(yc[Date>=nov1]$y5),
-                sd(yc[Date>=nov1]$y7),
-                sd(yc[Date>=nov1]$y10),
-                sd(yc[Date>=nov1]$y30),
-                sd(gld[Date>=nov1]$Adj.Close),
-                sd(ewa[Date>=nov1]$Adj.Close))
+  mean_oct = c( mean(yc[oct]$y2), 
+                mean(yc[oct]$y3), 
+                mean(yc[oct]$y5), 
+                mean(yc[oct]$y7), 
+                mean(yc[oct]$y10), 
+                mean(yc[oct]$y30), 
+                mean(gld[oct]$Adj.Close), 
+                mean(ewa[oct]$Adj.Close)),
+  sd_oct   = c( sd(yc[oct]$y2),
+                sd(yc[oct]$y3),
+                sd(yc[oct]$y5),
+                sd(yc[oct]$y7),
+                sd(yc[oct]$y10),
+                sd(yc[oct]$y30),
+                sd(gld[oct]$Adj.Close),
+                sd(ewa[oct]$Adj.Close)),
+  mean_nov = c( mean(yc[nov]$y2),
+                mean(yc[nov]$y3),
+                mean(yc[nov]$y5),
+                mean(yc[nov]$y7),
+                mean(yc[nov]$y10),
+                mean(yc[nov]$y30),
+                mean(gld[nov]$Adj.Close),
+                mean(ewa[nov]$Adj.Close)),
+  sd_nov   = c( sd(yc[nov]$y2),
+                sd(yc[nov]$y3),
+                sd(yc[nov]$y5),
+                sd(yc[nov]$y7),
+                sd(yc[nov]$y10),
+                sd(yc[nov]$y30),
+                sd(gld[nov]$Adj.Close),
+                sd(ewa[nov]$Adj.Close))
 ) 
 summaries
 ```
@@ -109,8 +119,46 @@ summaries
 
 # 6 Modeling Prices
 
+Nelson-Siegel-Svensson yield curve formula for the forward rate:
 
+$$\begin{array}{ccc}
+y_t(T) = \beta_{0} + \beta_{1} \exp\left( -\frac{T}{\tau_1} \right) + \beta_2
+\frac{T}{\tau_1} \exp \left( -\frac{T}{\tau_1} \right) + \beta_3
+\frac{T}{\tau_2} \exp \left( -\frac{T}{\tau_2} \right)
+\end{array}$$
+
+
+```{r}
+MATURITY_BASES = c(2, 3, 5, 7, 10, 30)
+A <- Svensson(yc, MATURITY_BASES )
+A
+Svensson.rate <- Srates( A, MATURITY_BASES, "Spot" )
+Svensson.rate
+```
+5.4 Significant changes to paramenters:
+It appears from the parameter graph, during the month of october, beta_3 rises from -20 to around -1. then during november it drops back to -20. Also, tau2 experiences changes. Around the end of october, value occasionally drop from 15 down to 3. It is those same days--october 28th and oct 29th that experience higher then average yield curve--meaning the structure of the curve didnt change but the entire curve rose upward.
+
+```{r}
+idx = index(yc)
+{
+  for (i in seq_along(idx)){
+  plot(MATURITY_BASES, Svensson.rate[i,],main=paste("Fitting Svensson yield curve", idx[i]),xlab=c("Pillars in years"), type="l", col=3, ylim=range(1.3:2.5))
+  lines(MATURITY_BASES, yc[i,],col=2)
+  legend("topleft",legend=c("fitted yield curve","observed yield curve"),col=c(3,2),lty=1)
+}
+} 
+
+{
+  plot(MATURITY_BASES, Svensson.rate[10,],main=paste("Fitting Svensson yield curve", idx[10]),xlab=c("Pillars in years"), type="l", col=3, ylim=range(1.3:2.5))
+  lines(MATURITY_BASES, yc[10,],col=2)
+  legend("topleft",legend=c("fitted yield curve","observed yield curve"),col=c(3,2),lty=1)
+}
+
+plot(A, legend.loc="topleft")
+
+```
 # 7 Modeling Volatility
 
 
 # 8 Correlation
+
