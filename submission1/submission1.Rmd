@@ -36,7 +36,7 @@ head(yc)
 1.2 GLD etf data was imported from yahoo finance:
 
 ```{r}
-gld <- csvToXTS('data/gld.csv')
+gld <- csvToXTS('data/GLD.csv')
 head(gld)
 ```
 
@@ -112,7 +112,18 @@ summaries
 ```
 
 # 4 Graphing
-
+```{r}
+fourpt1 <- ggplot(data = yc, aes(x = Index)) + 
+  geom_point(aes(y=y2, color='2-year')) +
+  geom_point(aes(y=y3, color='3-year')) +
+  geom_point(aes(y=y5, color='5-year')) +
+  geom_point(aes(y=y7, color='7-year')) +
+  geom_point(aes(y=y10, color='10-year')) +
+  geom_point(aes(y=y30, color='30-year')) +
+  labs(colour="US Treasury Yields",x="Date",y="Yield (%)") +
+  scale_color_manual(values = c("red","blue","green","orange","purple","brown"))
+print(fourpt1)
+```
 
 # 5 Fitting the Yield Curve
 
